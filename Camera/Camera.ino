@@ -604,17 +604,17 @@ void setup() {
   setRes();
   setColor();
   wrReg(0x11, 11); //Earlier it had the value: wrReg(0x11, 12); New version works better for me :) !!!!
-  myservo.attach(13);
-  myservo2.attach(12);
+//  myservo.attach(13);
+//  myservo2.attach(12);
 }
 
 
 void loop() {
   captureImg(320, 240);
-  myservo.write(0); // สั่งให้ Servo หมุนไปองศาที่ 0
-  myservo2.write(0); // สั่งให้ Servo หมุนไปองศาที่ 0
-  delay(10); // หน่วงเวลา 1000ms
-  myservo.write(90); // สั่งให้ Servo หมุนไปองศาที่ 90
-  myservo2.write(90); // สั่งให้ Servo หมุนไปองศาที่ 90
-  delay(10); // หน่วงเวลา 1000ms
+//  myservo.write(0); // สั่งให้ Servo หมุนไปองศาที่ 0
+//  myservo2.write(0); // สั่งให้ Servo หมุนไปองศาที่ 0
+//  delay(10); // หน่วงเวลา 1000ms
+//  myservo.write(90); // สั่งให้ Servo หมุนไปองศาที่ 90
+//  myservo2.write(90); // สั่งให้ Servo หมุนไปองศาที่ 90
+//  delay(10); // หน่วงเวลา 1000ms
 }
