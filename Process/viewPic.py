@@ -27,17 +27,17 @@ def inputSheet():
     print('C : Center capture.')
     print('L : Left capture.')
     print('R : right capture.')
+    print('Q : Quit/Exit.')
     print('='*20)
 
 def capturePic(path):
     img, Err = cam.getImg()
-    # cam.display(img)
-    # print(img[0][0])
     tmp = image.markPoint(img)
-    print(image.process(image.getValue(img)))
+    pData,alldata = image.process(img)
+    print(pData,alldata)
     cam.save(tmp, path + '.png')
     servo.write([ord('C')])
-    #cam.destWins()
+    return alldata
 
 def firstCapture():
     ls = ['L','C','R']
@@ -70,6 +70,7 @@ if __name__ == "__main__":
             servo.write([ord(inp)])
             time.sleep(1)
             capturePic(folder + inp)
+            
         elif inp == 'L': #Take picture at left
             print('Capture : ' + inp,end=' -> ')
             servo.write([ord(inp)])
@@ -80,5 +81,7 @@ if __name__ == "__main__":
             servo.write([ord(inp)])
             time.sleep(1)
             capturePic(folder + inp)
+        elif inp == 'Q':
+            break
         else:
             print('Not macth any choice!')

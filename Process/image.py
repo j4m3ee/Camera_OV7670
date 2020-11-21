@@ -24,7 +24,8 @@ def getValue(img):
             data.append(tmpImg[y,x][0])
     return data 
 
-def process(data):
+def process(img):
+    data = getValue(img)
     mean = (max(data)-min(data))//2
     q1 = [data[0],data[4],data[1],data[5]]
     q2 = [data[8],data[12],data[9],data[13]]
@@ -50,5 +51,11 @@ def process(data):
             bitData[i] = 0
         else:
             bitData[i] = 1
-    return ''.join(str(i) for i in bitData)
+    strBit = ''.join(str(i) for i in bitData)
+    packList = list(q1 + [qAv[0]] + q2 + [qAv[1]] + q3 + [qAv[2]] + q4 +[qAv[3]])
+    return (strBit,packList)
+    #return (strBit + " : " + str(int(strBit,2)),packList)
+
+
+    
     
