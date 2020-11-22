@@ -38,7 +38,7 @@ void loop()
     char in = Serial.read();
     if(in == 'C'){
       moveServoTo(servoPan,panCentre);
-      moveServoTo(servoTilt,tiltCentre);
+      moveServoTo(servoTilt,tiltCentre-5);
     }else if(in == 'L'){ //left rotate
       moveServoTo(servoPan,panCentre+rotate);
       moveServoTo(servoTilt,tiltCentre-10);

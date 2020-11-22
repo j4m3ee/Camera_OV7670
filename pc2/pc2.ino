@@ -16,12 +16,18 @@ void setup()
   director = new servo();
   receiver = new FM_rx(97.5);
   transmitter = new FM_tx();
+
+//  output = createWriter
 }
+
+uint8_t in[3] = {'L','C','R'};
 
 void loop()
 {
-  if(Serial.available() > 0){
-    String inp = Serial.readString();
-    Serial.println(inp);
-  }
+    for(int i=0;i<3;i++)
+    {
+      director -> moveServo(in[i]);
+      Serial.write(in[i]);
+      while(!(Serial.available())
+    }
 }
