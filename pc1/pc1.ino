@@ -56,13 +56,12 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
   memset(out, 0, size_data + 2);
   data_pac(out, data, size_data);
   transmitter->sendFrame((char *)out);
-  int8_t ack[] = {'a'};
-  int8_t ch[4]= {-1};
-  
+  int8_t ack[1]={0};
+  int8_t ch= -1;
   while (ch[0] < 0) {
-    ch = receiver->receiveFrame(t_out);
-    if (ch[0] >= 0) {
-      return 'a';
+    ch = receiver->receiveFrame(ack);
+    if (ch >= 0&&ack[0] == 'a') {
+      return ch;
     }
     else {
       transmitter->sendFrame((char *)out);
@@ -70,8 +69,8 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
   }
 }
 
-int8_t receiveAndSendAck(uint8_t* data, uint8_t size_data) {
-  int8_t ch = receiver->receiveFrame(data, size_data, 1000);
+int8_t receiveAndSendAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
+  int8_t ch = receiver->receiveFrame(data, size_data, t_out);
   if (ch>0){
     uint8_t out[4];
     uint8_t ack = 'a';
