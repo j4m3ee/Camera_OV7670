@@ -5,6 +5,7 @@ enum STATES {
   GET_3DATA,
   LAST_STATE
 } state = START;
+
 void data_pac(uint8_t* to, uint8_t* in, uint8_t s) {
   int i;
   int sum = 0;
@@ -24,6 +25,7 @@ void data_pac(uint8_t* to, uint8_t* in, uint8_t s) {
   comply %= (16 * 16);
   to[s + 1] = comply;
 }
+
 bool err_check(uint8_t* in, uint8_t s) {
   int i;
   int sum = 0;
@@ -41,6 +43,30 @@ bool err_check(uint8_t* in, uint8_t s) {
   }
   return false;
 }
+
+int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
+  uint8_t out[size_data + 2];
+  memset(out, 0, size_data + 2);
+  data_pac(out, data, size_data);
+  //transmitter->sendFrame(out);
+  int8_t ack[] = {'a'};
+  int8_t ch = -5;
+  while (ch != 1) {
+    //ch = receiveFrame(ack, 1, 1000);
+    if (ch == 1) {
+      return ch;
+    }
+    else {
+      //transmitter->sendFrame(out);
+    }
+  }
+}
+
+int8_t receiveAndSendAck(uint8_t* data, uint8_t size_data) {
+  //int8_t ch = receiveFrame(data, size_data, 1000);
+
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.flush();
