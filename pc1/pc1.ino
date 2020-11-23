@@ -10,10 +10,10 @@ enum STATES {
   LAST_STATE
 } state = START;
 
-FM_rx *receiver;
-FM_tx *transmitter;
+//FM_rx *receiver;
+//FM_tx *transmitter;
 
-void data_pac(uint8_t* to, uint8_t* in, uint8_t s) {
+void addChecksum(uint8_t* to, uint8_t* in, uint8_t s) {
   int i;
   int sum = 0;
   for (i = 0; i < s; i += 2) {
@@ -33,7 +33,7 @@ void data_pac(uint8_t* to, uint8_t* in, uint8_t s) {
   to[s + 1] = comply;
 }
 
-bool err_check(uint8_t* in, uint8_t s) {
+bool checkSum(uint8_t* in, uint8_t s) {
   int i;
   int sum = 0;
   for (i = 0; i < s; i += 2) {
@@ -57,12 +57,12 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
   data_pac(out, data, size_data);
   transmitter->sendFrame((char *)out);
   int8_t ack[] = {'a'};
-  int8_t ch[40]= {-1};
+  int8_t ch[4]= {-1};
   
   while (ch[0] < 0) {
-    ch = receiveFrame(1000);
-    if (ch >= 0) {
-      return ch;
+    ch = receiver->receiveFrame(t_out);
+    if (ch[0] >= 0) {
+      return 'a';
     }
     else {
       transmitter->sendFrame((char *)out);
@@ -71,8 +71,15 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
 }
 
 int8_t receiveAndSendAck(uint8_t* data, uint8_t size_data) {
-  //int8_t ch = receiveFrame(data, size_data, 1000);
-
+  int8_t ch = receiver->receiveFrame(data, size_data, 1000);
+  if (ch>0){
+    uint8_t out[4];
+    uint8_t ack = 'a';
+    memset(out, 0, 4);
+    data_pac(out, ack, 4);
+    transmitter->sendFrame((char *)out);
+  }
+  return ch;
 }
 
 void setup() {
