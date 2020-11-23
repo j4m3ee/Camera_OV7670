@@ -5,7 +5,42 @@ enum STATES {
   GET_3DATA,
   LAST_STATE
 } state = START;
-
+void data_pac(uint8_t* to, uint8_t* in, uint8_t s) {
+  int i;
+  int sum = 0;
+  for (i = 0; i < s; i += 2) {
+    sum += in[i] * 256;
+    to[i] = in[i];
+    if (i + 1 < s) {
+      sum += in[i + 1];
+      to[i + 1] = in[i + 1];
+    }
+    if (sum >= 65536) {
+      sum = sum - 65535;
+    }
+  }
+  int comply = 16 * 16 * 16 * 16 - sum - 1;
+  to[s] = comply / (16 * 16);
+  comply %= (16 * 16);
+  to[s + 1] = comply;
+}
+bool err_check(uint8_t* in, uint8_t s) {
+  int i;
+  int sum = 0;
+  for (i = 0; i < s; i += 2) {
+    sum += in[i] * 256;
+    if (i + 1 < s) {
+      sum += in[i + 1];
+    }
+    if (sum >= 65536) {
+      sum = sum - 65535;
+    }
+  }
+  if (sum == 65535) {
+    return true;
+  }
+  return false;
+}
 void setup() {
   Serial.begin(115200);
   Serial.flush();
