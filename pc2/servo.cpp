@@ -20,6 +20,25 @@ void servo::moveServo(char in)
     }
 }
 
+String servo::Capture(char angle)
+{
+  String oup;
+      moveServo(angle);
+      Serial.write(angle);
+      oup = receiveData();
+      delay(2000);
+   moveServo('C');
+   return oup;
+}
+
+String servo::receiveData(){
+  String tmp;
+  while(!Serial.available());
+  tmp = Serial.readString();
+  
+  return tmp;
+}
+
 void servo::moveServoTo(Servo sv, int to)
 {
     int from = sv.read();
@@ -28,7 +47,7 @@ void servo::moveServoTo(Servo sv, int to)
         for (int i = from; i < to; i++)
         {
             sv.write(i);
-            delay(5);
+            delay(10);
         }
     }
     else

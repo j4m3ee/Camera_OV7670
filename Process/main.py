@@ -22,26 +22,29 @@ folder = './out/'
 
 def capturePic(path):
     img, Err = cam.getImg()
+    if Err: return 'Error image.'
     tmp = image.markPoint(img)
     pData,allData = image.process(img)
     print(pData,allData)
     cam.save(tmp, path + '.png')
-    pc2.write([ord('C')])
+    text = str(int(pData,2))+','+ convertListToStr(allData)
+    pc2.write((text).encode())
+    #pc2.write(("123456789012345678901234").encode())
     return allData
 
-def firstCapture():
-    ls = ['L','C','R']
-    for i in ls:
-        print('Capture : ' + i,end=' -> ')
-        pc2.write([ord(i)])
-        time.sleep(1)
-        capturePic(folder + i)
-    time.sleep(1)
+def convertListToStr(ls):
+    text = ','.join(str(i) for i in ls)
+    return text
+
+
 
 def sentData(data):
     pass
 
+opr = ['L','C','R']
+
 if __name__ == "__main__":
+    
     for file in os.listdir(folder):
         Path = os.path.join(folder,file)
         try:
@@ -50,30 +53,16 @@ if __name__ == "__main__":
             elif os.path.isdir(Path):
                 shutil.rmtree(Path)
         except Exception as e:
-            print('Failed to delete file {}. Cause {}'.format(Path,e))
-    firstCapture()
+            print('Failed to delete file {}. Cause {}'.format(Path,e))  
+    print('Ready to cature!!!')
     while True:
         while not pc2.inWaiting():
             time.sleep(0.1)
         order = pc2.read_until().decode('ascii')
-        order = order[0].capitalize()
-        if order == 'T':
-            firstCapture()
-        elif order == 'C': #Take picture at center
-            print('Capture : ',order,end=' -> ')
-            pc2.write([ord(order)])
-            time.sleep(1)
-            lsData = capturePic(folder + order)
-            pc2.write(bytearray(lsData))
-        elif order == 'L': #Take picture at left
+        if(order in opr):
             print('Capture : ' + order,end=' -> ')
-            pc2.write([ord(order)])
-            time.sleep(1)
             lsData = capturePic(folder + order)
-            pc2.write(bytearray(lsData))
-        elif order == 'R': #Take picture at right 
-            print('Capture : ' + order,end=' -> ')
-            pc2.write([ord(order)])
-            time.sleep(1)
-            lsData = capturePic(folder + order)
-            pc2.write(bytearray(lsData))
+        else:
+            print(order)
+    
+        # print(lsData);
