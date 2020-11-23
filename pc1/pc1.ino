@@ -1,5 +1,9 @@
 #include<String.h>
-//String inp;
+#include "FM_Tx.h"
+#include "FM_Rx.h"
+FM_Rx *receiver;
+FM_Tx *transmitter;
+
 enum STATES {
   START,
   GET_3DATA,
@@ -9,6 +13,8 @@ enum STATES {
 void setup() {
   Serial.begin(115200);
   Serial.flush();
+  receiver = new FM_Rx(97); //Frequency goes here
+  transmitter = new FM_Tx();
   Serial.println("\n======= PROGRAM STARTING =======");
   Serial.print(". ");
   delay(500);
@@ -17,8 +23,29 @@ void setup() {
   Serial.println(".");
   delay(500);
   Serial.println("///// Binary Image Capture \\\\\\\\\\");
-  Serial.println("Developed by Group No. 8\n\n");
+  Serial.println("\tDeveloped by Group No. 8\n\n");
 
+}
+
+int sendAndWaitAck(uint8_t *data, uint8_t size, unsigned long timeout) {
+  /*
+  uint8_t dataOut2[size + 3];
+  memset(dataOut2, 0, size + 3);
+  
+  crc.send(dataOut2, data, size, 2);
+  transmitter->sendFrame(dataOut2, size);
+*/
+  int temp = -10;/*
+  while(temp != 1){
+    temp = receiver->receiveAck(timeout);
+    if(temp!=1){
+      Serial.println("timeout or error\nretransmitt...");
+      transmitter->sendFrame(dataOut2, size);
+    } else if (temp == 1) {
+      Serial.println("Receive ACK");
+    }
+  }*/
+  return temp;
 }
 
 void start() {  //Ask user to begin
@@ -39,7 +66,7 @@ void start() {  //Ask user to begin
 
 void get_image_data3() {
   char startCMD = 's';
-  Serial.println("Requesting form PC2 . . .");
+  Serial.println("Requesting from PC2 . . .");
   //Send 's' to PC2 to Begin
   /*
   int temp = sendAndWaitAck(&startCMD, 1, 2000);
@@ -105,7 +132,7 @@ void last_state() {
     }
     */
     //Shortcut to next state
-    Serial.println("Enter \'s\' to reset program.");
+    Serial.println("\nEnter \'s\' to reset program.");
     while (!Serial.available()) {
     }
     char in = Serial.read();
