@@ -10,6 +10,67 @@ enum STATES {
   LAST_STATE
 } state = START;
 
+void data_pac(uint8_t* to, uint8_t* in, uint8_t s) {
+  int i;
+  int sum = 0;
+  for (i = 0; i < s; i += 2) {
+    sum += in[i] * 256;
+    to[i] = in[i];
+    if (i + 1 < s) {
+      sum += in[i + 1];
+      to[i + 1] = in[i + 1];
+    }
+    if (sum >= 65536) {
+      sum = sum - 65535;
+    }
+  }
+  int comply = 16 * 16 * 16 * 16 - sum - 1;
+  to[s] = comply / (16 * 16);
+  comply %= (16 * 16);
+  to[s + 1] = comply;
+}
+
+bool err_check(uint8_t* in, uint8_t s) {
+  int i;
+  int sum = 0;
+  for (i = 0; i < s; i += 2) {
+    sum += in[i] * 256;
+    if (i + 1 < s) {
+      sum += in[i + 1];
+    }
+    if (sum >= 65536) {
+      sum = sum - 65535;
+    }
+  }
+  if (sum == 65535) {
+    return true;
+  }
+  return false;
+}
+
+int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
+  uint8_t out[size_data + 2];
+  memset(out, 0, size_data + 2);
+  data_pac(out, data, size_data);
+  //transmitter->sendFrame(out);
+  int8_t ack[] = {'a'};
+  int8_t ch = -5;
+  while (ch != 1) {
+    //ch = receiveFrame(ack, 1, 1000);
+    if (ch == 1) {
+      return ch;
+    }
+    else {
+      //transmitter->sendFrame(out);
+    }
+  }
+}
+
+int8_t receiveAndSendAck(uint8_t* data, uint8_t size_data) {
+  //int8_t ch = receiveFrame(data, size_data, 1000);
+
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.flush();
