@@ -10,6 +10,9 @@ enum STATES {
   LAST_STATE
 } state = START;
 
+FM_rx *receiver;
+FM_tx *transmitter;
+
 void data_pac(uint8_t* to, uint8_t* in, uint8_t s) {
   int i;
   int sum = 0;
@@ -52,16 +55,17 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
   uint8_t out[size_data + 2];
   memset(out, 0, size_data + 2);
   data_pac(out, data, size_data);
-  //transmitter->sendFrame(out);
+  transmitter->sendFrame((char *)out);
   int8_t ack[] = {'a'};
-  int8_t ch = -5;
-  while (ch != 1) {
-    //ch = receiveFrame(ack, 1, 1000);
-    if (ch == 1) {
+  int8_t ch[40]= {-1};
+  
+  while (ch[0] < 0) {
+    ch = receiveFrame(1000);
+    if (ch >= 0) {
       return ch;
     }
     else {
-      //transmitter->sendFrame(out);
+      transmitter->sendFrame((char *)out);
     }
   }
 }
@@ -84,9 +88,15 @@ void setup() {
   Serial.println(".");
   delay(500);
   Serial.println("///// Binary Image Capture \\\\\\\\\\");
+<<<<<<< HEAD
   Serial.println("\tDeveloped by Group No. 8\n\n");
 
 }
+=======
+  Serial.println("Developed by Group No. 8\n\n");
+  receiver = new FM_rx(97.5);
+  transmitter = new FM_tx();
+>>>>>>> 2b876be2670611ef826193962cc8823f9da41fb8
 
 int sendAndWaitAck(uint8_t *data, uint8_t size, unsigned long timeout) {
   /*
