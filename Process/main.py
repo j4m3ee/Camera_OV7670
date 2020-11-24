@@ -65,6 +65,12 @@ if __name__ == "__main__":
             lsData = capturePic(folder + order)
         elif order == 'A':
             print('PC2 : ackReceive.')
+        elif order == 'w':
+            print('PC2 : waitting ack.')
+        elif order == 'l':
+            print('PC2 : timeout.')
+        elif order == 'S':
+            print('PC2 : waitting order.')
         else:
             print('PC2 :',order)
 
