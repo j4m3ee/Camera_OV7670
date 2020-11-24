@@ -37,10 +37,10 @@ void addCheckSum(uint8_t* to, uint8_t* in, uint8_t s) {
   Serial.println();*/
 }
 
-bool checkSum(uint8_t* in, uint8_t s) {
+bool checkSum(uint8_t* in, uint8_t frameSize) {
   int i;
   int sum = 0;
-  for (i = 1; i <= s; i ++) {
+  for (i = 1; i < frameSize; i ++) {
     sum += in[i];
     if (sum >= 256) {
       sum = sum - 255;
@@ -61,7 +61,7 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
   int ch = -1;
   int i;
   unsigned long t = millis();
-  while (ch != -2) {
+  while (1) {
     ch = receiver->Receive();
     buff[0] = ch;
     if (ch == 2) {
@@ -69,7 +69,7 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
         ch = receiver->Receive();
         buff[i] = ch;
       }
-      if (checkSum(buff, i)) {
+      if (checkSum(buff, 3)) {
         if (buff[1] == 'a') {
           return 1;
         }
@@ -83,9 +83,28 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
   }
 }
 
-int8_t recieveAndSendAck(uint8_t* data) {
-
+int8_t recieveAndSendAck(uint8_t* data,uint8_t size_data) {
+  int ch = -1;
+  while (1) {
+    ch = receiver->Receive();
+    data[0] = ch;
+    if (ch == 2) {
+      for (int i = 1;i<size_data+2; i++) {
+        ch = receiver->Receive();
+        data[i] = ch;
+      }
+      if (checkSum(buff, size_data + 2)) {
+        uint8_t out[3];
+        memset(out, 0, 3);
+        uint8_t ack[1] = {'a'};
+        addCheckSum(out, ack, 3);
+        transmitter->sentFrame((char *)out);
+        return 1;
+      }
+    }
+  }
 }
+//end of new data control
 
 //int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
 //  uint8_t out[size_data + 3];
