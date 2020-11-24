@@ -1,9 +1,9 @@
-#include "FM_rx.h"
-#include "FM_tx.h"
+#include "FM_Rx.h"
+#include "FM_Tx.h"
 #include "servo.h"
 
-FM_rx *receiver;
-FM_tx *transmitter;
+FM_Rx *receiver;
+FM_Tx *transmitter;
 servo *director;
 
 uint8_t buff[20];
@@ -85,8 +85,8 @@ void setup()
   Serial.flush();
 
   director = new servo();
-  receiver = new FM_rx(97.5);
-  transmitter = new FM_tx();
+  receiver = new FM_Rx(97.5);
+  transmitter = new FM_Tx();
 
   //  transmitter -> setVoltage(0);
   director -> startCam();
