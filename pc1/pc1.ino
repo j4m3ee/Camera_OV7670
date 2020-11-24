@@ -98,8 +98,8 @@ void setup() {
 
 }
 
-  receiver = new FM_rx(97.5);
-  transmitter = new FM_tx();
+  receiver = new FM_Rx(97.5);
+  transmitter = new FM_Tx();
 
 
 int sendAndWaitAck(uint8_t *data, uint8_t size, unsigned long timeout) {

@@ -11,10 +11,10 @@
 #define num_cycle 4
 #define f_diff 500
 
-class FM_tx
+class FM_Tx
 {
     public:
-        FM_tx();
+        FM_Tx();
         void sentFrame(char data[]);
     private:
         Adafruit_MCP4725 dac;

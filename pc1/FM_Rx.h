@@ -12,11 +12,11 @@
 //edit this number
 #define r_slope 300
 
-class FM_rx
+class FM_Rx
 {
 public:
     int receiveFrame(int timeout);
-    FM_rx(float freq);
+    FM_Rx(float freq);
 
 private:
     int prev = 0;
