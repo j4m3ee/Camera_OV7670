@@ -215,42 +215,37 @@ FM_tx::FM_tx()
 
 void FM_tx::fskTransmit(String data) {
   int counter = 0;
+
   for (int i = 0; i < data.length(); i++)
   {
     inData[i] = data[i];
     counter++;
   }
-  //    Serial.println(inp);
-  //    Serial.println(counter);
+
   for (int i = 0; i < counter ; i++) //send data
   {
-    //char preShifted = inData[i];
-
     for (int k = 7; k > 0; k -= 2) //send 8 bits from LSB tp MSB
     {
       int tmp = inData[i] & 3;
       int useDelay, cyc;
-      if (tmp == 0)
+      if (tmp == 0)  //Serial.println("00");
       {
-        //Serial.println("00");
+        
         cyc = 5;
         useDelay = Delay[0];
       }
-      else if (tmp == 1)
+      else if (tmp == 1) //Serial.println("01");
       {
-        //Serial.println("01");
         cyc = 8;
         useDelay = Delay[1];
       }
-      else if (tmp == 2)
+      else if (tmp == 2) //Serial.println("10");
       {
-        //Serial.println("10");
         cyc = 11;
         useDelay = Delay[2];
       }
-      else
+      else  //Serial.println("11");
       {
-        //Serial.println("11");
         cyc = 14;
         useDelay = Delay[3];
       }
