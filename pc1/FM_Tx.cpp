@@ -1,6 +1,6 @@
 #include "FM_Tx.h"
 
-FM_tx::FM_tx()
+FM_Tx::FM_Tx()
 {
   dac.begin(0x62);
   uint16_t S_DAC[num_S_Dac] = {0, 1000, 2000, 1000};
@@ -15,7 +15,7 @@ FM_tx::FM_tx()
   }
 }
 
-void FM_tx::sentFrame(char data[])
+void FM_Tx::sentFrame(char data[])
 {
   uint16_t len = strlen(data);
   for (uint16_t i = 0; i < len; i++)
@@ -24,7 +24,7 @@ void FM_tx::sentFrame(char data[])
   }
 }
 
-char FM_tx::packFrame(char data[])
+char FM_Tx::packFrame(char data[])
 {
   uint16_t len = strlen(data);
   //Flag : ~ [1 bytes]
@@ -32,7 +32,7 @@ char FM_tx::packFrame(char data[])
   return 'a';
 }
 
-void FM_tx::transmit(char data)
+void FM_Tx::transmit(char data)
 {
   int tmp;
   for (int i = 7; i > 0; i -= 2)
@@ -43,7 +43,7 @@ void FM_tx::transmit(char data)
   }
 }
 
-void FM_tx::dacSent(uint16_t cyc, int dur)
+void FM_Tx::dacSent(uint16_t cyc, int dur)
 {
   for (uint16_t c = 0; c < cyc; c++)
   {

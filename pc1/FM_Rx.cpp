@@ -1,6 +1,6 @@
 #include "FM_Rx.h"
 
-FM_rx::FM_rx(float freq)
+FM_Rx::FM_Rx(float freq)
 {
     sbi(ADCSRA, ADPS2); // this for increase analogRead speed
     cbi(ADCSRA, ADPS1);
@@ -10,7 +10,7 @@ FM_rx::FM_rx(float freq)
     radio.setFrequency(freq);
 }
 
-uint8_t FM_rx::receiveFrame(int timeout)
+uint8_t FM_Rx::receiveFrame(int timeout)
 {
     unsigned long start = millis();
     uint8_t aData[40];
