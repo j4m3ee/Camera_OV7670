@@ -10,8 +10,7 @@ enum STATES {
   LAST_STATE
 } state = START;
 
-//FM_rx *receiver;
-//FM_tx *transmitter;
+
 
 void addChecksum(uint8_t* to, uint8_t* in, uint8_t s) {
   int i;
@@ -94,15 +93,8 @@ void setup() {
   Serial.println(".");
   delay(500);
   Serial.println("///// Binary Image Capture \\\\\\\\\\");
-<<<<<<< HEAD
   Serial.println("\tDeveloped by Group No. 8\n\n");
-
 }
-=======
-  Serial.println("Developed by Group No. 8\n\n");
-  receiver = new FM_rx(97.5);
-  transmitter = new FM_tx();
->>>>>>> 2b876be2670611ef826193962cc8823f9da41fb8
 
 int sendAndWaitAck(uint8_t *data, uint8_t size, unsigned long timeout) {
   /*
@@ -208,7 +200,7 @@ void last_state() {
       Serial.println();
     }
     */
-    //Shortcut to next state
+    //*************Shortcut to next state
     Serial.println("\nEnter \'s\' to reset program.");
     while (!Serial.available()) {
     }
