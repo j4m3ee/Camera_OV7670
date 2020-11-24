@@ -9,7 +9,7 @@ servo *director;
 uint8_t buff[20];
 char angle[3] = {'L', 'C', 'R'};
 String bin[3];
-//1,27,28,26,27,27,29,27,29,29,28,26,29,27,29,27,199,196,185,176,189
+//1,27,28,26,27,27,29,27,29,29,28,26,29,27,29,27,199,196,185,176,189 
 String data[3][21];
 uint8_t data_index = 0;
 
@@ -25,10 +25,10 @@ void setup()
   receiver = new FM_rx(97.5);
   transmitter = new FM_tx();
 
-  //  transmitter -> setVoltage(0);
+  transmitter -> setVoltage(0);
   director -> startCam();
 
-
+  
 
   //  output = createWriter
   Serial.flush();
@@ -38,13 +38,9 @@ String *tmp;
 
 void loop()
 {
-
+  
   if (nowState == "INIT") {
-    transmitter -> Transmit("ABC");
-    Serial.write('S');
-    //transmitter -> sentFrame("A");
-    
-    //transmitter -> testDac();
+//    transmitter -> testDac();
     for (uint8_t i = 0; i < 3; i++) {
       bin[i] = director -> Capture(angle[i]);
     }
@@ -59,26 +55,36 @@ void loop()
       }
       data_index = 0;
     }
-    //    for (uint8_t i = 0; i < 3; i++) {
-    //      for (uint8_t j = 0; j < 21; j++) {
-    //        for (uint8_t n = 0; n < data[i][j].length(); n++) {
-    //          Serial.write(data[i][j][n]);
-    //          data[i][j][n] = int(data[i][j][n]);
-    //        }
-    //        Serial.write(' ');
-    //
-    //      }
-    //      delay(500);
-    //    }
-
-    //transmitter -> FullTransmit("A");
-
+//    for (uint8_t i = 0; i < 3; i++) {
+//      for (uint8_t j = 0; j < 21; j++) {
+//        for (uint8_t n = 0; n < data[i][j].length(); n++) {
+//          Serial.write(data[i][j][n]);
+//          data[i][j][n] = int(data[i][j][n]);
+//        }
+//        Serial.write(' ');
+//        
+//      }
+//      delay(500);
+//    }
+      //transmitter -> sentFrame("A");
+//      transmitter -> FullTransmit("ABC");
+//      Serial.write('S');
+//    transmitter -> setVoltage(0);
+//    delay(10);
+//    transmitter -> setVoltage(1000);
+//    delay(10);
+//    transmitter -> setVoltage(2000);
+//    delay(10);
+//    transmitter -> setVoltage(1000);
+//    delay(10);
+//    transmitter -> setVoltage(0);
+//    delay(10);
     
-
+    
     nowState = "WAIT";
   }
-  if (nowState == "WAIT") {
-  
+  if (nowState == "WAIT"){
+    
     //receiver -> receiveFrame(100);
   }
 
