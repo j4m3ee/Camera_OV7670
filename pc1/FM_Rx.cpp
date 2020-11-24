@@ -1,4 +1,4 @@
-#include "FM_rx.h"
+#include "FM_Rx.h"
 
 FM_rx::FM_rx(float freq)
 {
@@ -10,22 +10,10 @@ FM_rx::FM_rx(float freq)
     radio.setFrequency(freq);
 }
 
-bool FM_rx::fmAvailable(){
-  uint16_t tmp;
-  prev = tmp;
-  while(1){
-    tmp = analogRead(A2);
-    if(prev-tmp > r_slope){
-      return true;
-    }
-    prev = tmp;
-  }
-}
-
-String FM_rx::receiveFrame(int timeout)
+uint8_t FM_rx::receiveFrame(int timeout)
 {
     unsigned long start = millis();
-    String aData;
+    uint8_t aData[40];
     int cIdx = 0;
 
     while (millis() - start < timeout)

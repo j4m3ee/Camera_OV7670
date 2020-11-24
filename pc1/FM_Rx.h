@@ -15,12 +15,11 @@
 class FM_rx
 {
 public:
-    String receiveFrame(int timeout);
-    
+    int receiveFrame(int timeout);
     FM_rx(float freq);
 
 private:
-    uint16_t prev = 0;
+    int prev = 0;
     int count = 0;
 
     uint16_t baud_check = 0;
@@ -34,5 +33,4 @@ private:
 
     int baudTime = 10000;
     TEA5767Radio radio = TEA5767Radio();
-    bool fmAvailable();
 };
