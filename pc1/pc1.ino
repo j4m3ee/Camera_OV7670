@@ -76,7 +76,7 @@ int8_t sendAndWaitAck(String data, unsigned long t_out) {
   unsigned long t = millis();
   String ch;
   while (1) {
-    ch = receiver->receiveFrame();
+    ch = receiver->receiveFrame(t_out);
     if (ch[0] == 2) {
       if (checkSum(ch)) {
         if (ch[1] == 'a') {
@@ -92,15 +92,15 @@ int8_t sendAndWaitAck(String data, unsigned long t_out) {
   }
 }
 
-String receiveAndSendAck() {
-  int ch = -1;
+String receiveAndSendAck(unsigned long t_out) {
+  String ch;
   while (1) {
-    ch = receiver->receiveFrame();
+    ch = receiver->receiveFrame(t_out);
     if (ch[0] == 2) {
       if (checkSum(ch)) {
         String out;
-        String ack = {'a'};
-        addCheckSum(out, ack);
+        String ack = "a";
+        out = addCheckSum(ack);
         transmitter->fskTransmit(out);
         return dataDepack(ch);
       }
