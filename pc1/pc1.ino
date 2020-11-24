@@ -15,6 +15,11 @@ FM_Tx *transmitter;
 
 //State
 //String[3] = {"INIT","WAIT","SEND"};
+struct picture{
+  uint8_t key;
+  uint8_t binary[4];
+  uint8_t color[20];
+}pic[3];
 String state = "INIT";
 uint8_t buff[50];
 void addCheckSum(uint8_t* to, uint8_t* in, uint8_t s) {
@@ -36,7 +41,11 @@ void addCheckSum(uint8_t* to, uint8_t* in, uint8_t s) {
   }
   Serial.println();*/
 }
-
+void dataDepack(uint8_t* out,uint8_t* in,uint8_t frameSize){
+  for(int i=1;i<frameSize-1;i++){
+    out[i-1] = in[i];
+  }
+}
 bool checkSum(uint8_t* in, uint8_t frameSize) {
   int i;
   int sum = 0;
@@ -60,17 +69,18 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
   transmitter->sentFrame((char *)out);
   int ch = -1;
   int i;
+  uint8_t tem[50];
   unsigned long t = millis();
   while (1) {
     ch = receiver->Receive();
-    buff[0] = ch;
+    tem[0] = ch;
     if (ch == 2) {
       for (i = 1;i<3; i++) {
         ch = receiver->Receive();
-        buff[i] = ch;
+        tem[i] = ch;
       }
       if (checkSum(buff, 3)) {
-        if (buff[1] == 'a') {
+        if (tem[1] == 'a') {
           return 1;
         }
         //else data error
@@ -83,17 +93,19 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
   }
 }
 
-int8_t recieveAndSendAck(uint8_t* data,uint8_t size_data) {
+int8_t receiveAndSendAck(uint8_t* data,uint8_t size_data) {
   int ch = -1;
+  uint8_t tem[50];
   while (1) {
     ch = receiver->Receive();
-    data[0] = ch;
+    tem[0] = ch;
     if (ch == 2) {
       for (int i = 1;i<size_data+2; i++) {
         ch = receiver->Receive();
-        data[i] = ch;
+        tem[i] = ch;
       }
-      if (checkSum(buff, size_data + 2)) {
+      if (checkSum(tem, size_data + 2)) {
+        dataDepack(data,tem,size_data + 2);
         uint8_t out[3];
         memset(out, 0, 3);
         uint8_t ack[1] = {'a'};
@@ -273,6 +285,15 @@ void setup() {
 //  }
 //}
 
+void decToBinary(uint8_t* out,uint8_t in){
+  int j=0;
+  for(int i = 8;i>0;i=i/2){
+    out[j] = in / i;
+    in = in%i;
+    j++;
+  }
+}
+
 void loop() {
   //Ask user to begin
   //  if(state == START) {
@@ -299,11 +320,17 @@ void loop() {
   ////Display Data
 
 
-
+  
   //New Code
   if (state == "INIT") {
     //CS
-
+    receiveAndSendAck(buff,3);
+    for(int i=0;i<3;i++){
+      pic[i].key = buff[i];
+      decToBinary(pic[i].binary,buff[i]);
+    }
+    
+    
 
     //NS
     state = "WAIT";
