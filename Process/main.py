@@ -54,7 +54,8 @@ if __name__ == "__main__":
                 shutil.rmtree(Path)
         except Exception as e:
             print('Failed to delete file {}. Cause {}'.format(Path,e))  
-    print('Ready to cature!!!')
+    print('Ready to capture!!!')
+
     while True:
         while not pc2.inWaiting():
             time.sleep(0.1)
@@ -62,7 +63,9 @@ if __name__ == "__main__":
         if(order in opr):
             print('Capture : ' + order,end=' -> ')
             lsData = capturePic(folder + order)
+        elif order == 'A':
+            print('PC2 : ackReceive.')
         else:
-            print(order)
+            print('PC2 :',order)
+
     
-        # print(lsData);
