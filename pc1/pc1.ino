@@ -16,7 +16,7 @@ FM_Tx *transmitter;
 //State 
 //String[3] = {"INIT","WAIT","SEND"};
 String state = "INIT";
-
+char buff[50];
 void addChecksum(uint8_t* to, uint8_t* in, uint8_t s) {
   int i;
   int sum = 0;
@@ -41,7 +41,7 @@ void addChecksum(uint8_t* to, uint8_t* in, uint8_t s) {
 bool checkSum(uint8_t* in, uint8_t s) {
   int i;
   int sum = 0;
-  for (i = 1; i <= s+2; i += 2) {
+  for (i = 1; i <= s; i += 2) {
     sum += in[i] * 256;
     if (i + 1 < s) {
       sum += in[i + 1];
@@ -54,6 +54,39 @@ bool checkSum(uint8_t* in, uint8_t s) {
     return true;
   }
   return false;
+}
+
+//new data control
+int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
+  uint8_t out[size_data + 3];
+  memset(out, 0, size_data + 3);
+  addCheckSum(out, data, size_data);
+  transmitter->sentFrame((char *)out);
+  int ch = -1;
+  int i;
+  unsigned long t = millis();
+  while (ch != -2) {
+    ch = receiver->Receive();
+    if (ch == 2){
+      for(i=0;;i++){
+        ch = receiver->Receive();
+        if (ch == 4){
+          ch = -2;
+          break;
+        }
+        buff[i] = ch;
+      }
+      if(checkSum(buff,i)){
+        if (buff[1]=='a'){
+          return 'a';
+        }
+      }
+    }
+  }
+}
+
+int8_t recieveAndSendAck(uint8_t* data){
+  
 }
 
 //int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
