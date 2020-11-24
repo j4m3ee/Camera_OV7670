@@ -44,7 +44,7 @@ void loop()
       moveServoTo(servoTilt,tiltCentre-10);
     }else if(in == 'R'){ //right rotate
       moveServoTo(servoPan,panCentre-rotate);
-      moveServoTo(servoTilt,tiltCentre+5);
+      moveServoTo(servoTilt,tiltCentre+2);
     }
   }
 }
