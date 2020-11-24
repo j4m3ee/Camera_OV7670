@@ -1,14 +1,91 @@
 #include<String.h>
-//String inp;
+#include "FM_Tx.h"
+#include "FM_Rx.h"
+FM_Rx *receiver;
+FM_Tx *transmitter;
+
 enum STATES {
   START,
   GET_3DATA,
   LAST_STATE
 } state = START;
 
+//FM_rx *receiver;
+//FM_tx *transmitter;
+
+void addChecksum(uint8_t* to, uint8_t* in, uint8_t s) {
+  int i;
+  int sum = 0;
+  for (i = 0; i < s; i += 2) {
+    sum += in[i] * 256;
+    to[i] = in[i];
+    if (i + 1 < s) {
+      sum += in[i + 1];
+      to[i + 1] = in[i + 1];
+    }
+    if (sum >= 65536) {
+      sum = sum - 65535;
+    }
+  }
+  int comply = 16 * 16 * 16 * 16 - sum - 1;
+  to[s] = comply / (16 * 16);
+  comply %= (16 * 16);
+  to[s + 1] = comply;
+}
+
+bool checkSum(uint8_t* in, uint8_t s) {
+  int i;
+  int sum = 0;
+  for (i = 0; i < s; i += 2) {
+    sum += in[i] * 256;
+    if (i + 1 < s) {
+      sum += in[i + 1];
+    }
+    if (sum >= 65536) {
+      sum = sum - 65535;
+    }
+  }
+  if (sum == 65535) {
+    return true;
+  }
+  return false;
+}
+
+int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
+  uint8_t out[size_data + 2];
+  memset(out, 0, size_data + 2);
+  data_pac(out, data, size_data);
+  transmitter->sendFrame((char *)out);
+  int8_t ack[1]={0};
+  int8_t ch= -1;
+  while (ch[0] < 0) {
+    ch = receiver->receiveFrame(ack);
+    if (ch >= 0&&ack[0] == 'a') {
+      return ch;
+    }
+    else {
+      transmitter->sendFrame((char *)out);
+    }
+  }
+}
+
+int8_t receiveAndSendAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
+  int8_t ch = receiver->receiveFrame(data, size_data, t_out);
+  if (ch>0){
+    uint8_t out[4];
+    uint8_t ack = 'a';
+    memset(out, 0, 4);
+    data_pac(out, ack, 4);
+    transmitter->sendFrame((char *)out);
+  }
+  return ch;
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.flush();
+  receiver = new FM_Rx(97); //Frequency goes here
+  transmitter = new FM_Tx();
   Serial.println("\n======= PROGRAM STARTING =======");
   Serial.print(". ");
   delay(500);
@@ -17,8 +94,33 @@ void setup() {
   Serial.println(".");
   delay(500);
   Serial.println("///// Binary Image Capture \\\\\\\\\\");
-  Serial.println("Developed by Group No. 8\n\n");
+  Serial.println("\tDeveloped by Group No. 8\n\n");
 
+}
+
+  receiver = new FM_rx(97.5);
+  transmitter = new FM_tx();
+
+
+int sendAndWaitAck(uint8_t *data, uint8_t size, unsigned long timeout) {
+  /*
+  uint8_t dataOut2[size + 3];
+  memset(dataOut2, 0, size + 3);
+  
+  crc.send(dataOut2, data, size, 2);
+  transmitter->sendFrame(dataOut2, size);
+*/
+  int temp = -10;/*
+  while(temp != 1){
+    temp = receiver->receiveAck(timeout);
+    if(temp!=1){
+      Serial.println("timeout or error\nretransmitt...");
+      transmitter->sendFrame(dataOut2, size);
+    } else if (temp == 1) {
+      Serial.println("Receive ACK");
+    }
+  }*/
+  return temp;
 }
 
 void start() {  //Ask user to begin
@@ -39,7 +141,7 @@ void start() {  //Ask user to begin
 
 void get_image_data3() {
   char startCMD = 's';
-  Serial.println("Requesting form PC2 . . .");
+  Serial.println("Requesting from PC2 . . .");
   //Send 's' to PC2 to Begin
   /*
   int temp = sendAndWaitAck(&startCMD, 1, 2000);
@@ -105,7 +207,7 @@ void last_state() {
     }
     */
     //Shortcut to next state
-    Serial.println("Enter \'s\' to reset program.");
+    Serial.println("\nEnter \'s\' to reset program.");
     while (!Serial.available()) {
     }
     char in = Serial.read();
