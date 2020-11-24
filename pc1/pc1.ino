@@ -13,48 +13,110 @@ FM_Tx *transmitter;
 //FM_rx *receiver;
 //FM_tx *transmitter;
 
-//State 
+//State
 //String[3] = {"INIT","WAIT","SEND"};
+struct picture{
+  uint8_t key;
+  uint8_t binary[4];
+  uint8_t color[20];
+}pic[3];
 String state = "INIT";
-
-void addChecksum(uint8_t* to, uint8_t* in, uint8_t s) {
+uint8_t buff[50];
+void addCheckSum(uint8_t* to, uint8_t* in, uint8_t s) {
   int i;
   int sum = 0;
   to[0] = 2;
-  for (i = 0; i < s; i += 2) {
-    sum += in[i] * 256;
-    to[i+1] = in[i];
-    if (i + 1 < s) {
-      sum += in[i + 1];
-      to[i + 2] = in[i + 1];
-    }
-    if (sum >= 65536) {
-      sum = sum - 65535;
+  for (i = 0; i < s; i ++) {
+    sum += in[i];
+    to[i + 1] = in[i];
+    if (sum >= 256) {
+      sum = sum - 255;
     }
   }
-  int comply = 16 * 16 * 16 * 16 - sum - 1;
-  to[s+1] = comply / (16 * 16);
-  comply %= (16 * 16);
-  to[s + 2] = comply;
+  int comply = 16 * 16 - sum - 1;
+  to[s+1] = comply;
+  /*for (i = 0; i <= s + 2; i++) {
+    Serial.print(to[i]);
+    Serial.print(',');
+  }
+  Serial.println();*/
 }
-
-bool checkSum(uint8_t* in, uint8_t s) {
+void dataDepack(uint8_t* out,uint8_t* in,uint8_t frameSize){
+  for(int i=1;i<frameSize-1;i++){
+    out[i-1] = in[i];
+  }
+}
+bool checkSum(uint8_t* in, uint8_t frameSize) {
   int i;
   int sum = 0;
-  for (i = 1; i <= s+2; i += 2) {
-    sum += in[i] * 256;
-    if (i + 1 < s) {
-      sum += in[i + 1];
-    }
-    if (sum >= 65536) {
-      sum = sum - 65535;
+  for (i = 1; i < frameSize; i ++) {
+    sum += in[i];
+    if (sum >= 256) {
+      sum = sum - 255;
     }
   }
-  if (sum == 65535) {
+  if (sum == 255) {
     return true;
   }
   return false;
 }
+
+//new data control
+int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
+  uint8_t out[size_data + 3];
+  memset(out, 0, size_data + 3);
+  addCheckSum(out, data, size_data);
+  transmitter->sentFrame((char *)out);
+  int ch = -1;
+  int i;
+  uint8_t tem[50];
+  unsigned long t = millis();
+  while (1) {
+    ch = receiver->Receive();
+    tem[0] = ch;
+    if (ch == 2) {
+      for (i = 1;i<3; i++) {
+        ch = receiver->Receive();
+        tem[i] = ch;
+      }
+      if (checkSum(buff, 3)) {
+        if (tem[1] == 'a') {
+          return 1;
+        }
+        //else data error
+      }
+    }
+    if (millis()-t > t_out){
+      t = millis();
+      transmitter->sentFrame((char *)out);//resummit time out
+    }
+  }
+}
+
+int8_t receiveAndSendAck(uint8_t* data,uint8_t size_data) {
+  int ch = -1;
+  uint8_t tem[50];
+  while (1) {
+    ch = receiver->Receive();
+    tem[0] = ch;
+    if (ch == 2) {
+      for (int i = 1;i<size_data+2; i++) {
+        ch = receiver->Receive();
+        tem[i] = ch;
+      }
+      if (checkSum(tem, size_data + 2)) {
+        dataDepack(data,tem,size_data + 2);
+        uint8_t out[3];
+        memset(out, 0, 3);
+        uint8_t ack[1] = {'a'};
+        addCheckSum(out, ack, 3);
+        transmitter->sentFrame((char *)out);
+        return 1;
+      }
+    }
+  }
+}
+//end of new data control
 
 //int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
 //  uint8_t out[size_data + 3];
@@ -73,7 +135,7 @@ bool checkSum(uint8_t* in, uint8_t s) {
 //        transmitter->sentFrame((char *)out);
 //      }
 //    }
-//    
+//
 //  }
 //}
 
@@ -103,7 +165,6 @@ void setup() {
   delay(500);
   Serial.println("///// Binary Image Capture \\\\\\\\\\");
   Serial.println("\tDeveloped by Group No. 8\n\n");
-
 }
 
 
@@ -111,7 +172,7 @@ void setup() {
 //  /*
 //  uint8_t dataOut2[size + 3];
 //  memset(dataOut2, 0, size + 3);
-//  
+//
 //  crc.send(dataOut2, data, size, 2);
 //  transmitter->sendFrame(dataOut2, size);
 //*/
@@ -158,7 +219,7 @@ void setup() {
 //  for(int i =0; i<3;i++){
 //    Serial.println("buff = " + String(buff[i]));
 //  }
-//  
+//
 //  if (size == 3) {
 //    for (int i = 0; i < 3; i++) {
 //      pos[i] = buff[i];
@@ -224,15 +285,24 @@ void setup() {
 //  }
 //}
 
+void decToBinary(uint8_t* out,uint8_t in){
+  int j=0;
+  for(int i = 8;i>0;i=i/2){
+    out[j] = in / i;
+    in = in%i;
+    j++;
+  }
+}
+
 void loop() {
   //Ask user to begin
-//  if(state == START) {
-//    start();
-//  } else if (state == GET_3DATA) {
-//    get_image_data3();
-//  } else if (state == LAST_STATE) {
-//    last_state();
-//  }
+  //  if(state == START) {
+  //    start();
+  //  } else if (state == GET_3DATA) {
+  //    get_image_data3();
+  //  } else if (state == LAST_STATE) {
+  //    last_state();
+  //  }
   ////If yes, tell PC2 to begin capture
 
   ////Wait & Recieve Data from PC2
@@ -240,7 +310,7 @@ void loop() {
   ////Display 4 bit binary & angles
 
   //ASk user to restart or retake
-  
+
   ////if retake ask user for data to retake
 
   ////tell pc2 which angle to capture
@@ -250,17 +320,23 @@ void loop() {
   ////Display Data
 
 
-
+  
   //New Code
-  if(state == "INIT") {
+  if (state == "INIT") {
     //CS
+    receiveAndSendAck(buff,3);
+    for(int i=0;i<3;i++){
+      pic[i].key = buff[i];
+      decToBinary(pic[i].binary,buff[i]);
+    }
+    
     
 
     //NS
     state = "WAIT";
   }
 
-  if(state == "WAIT"){
+  if (state == "WAIT") {
     //CS
     Serial.println("Waiting for respond");
     receiver -> Receive();
