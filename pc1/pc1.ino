@@ -1,8 +1,8 @@
 #include<String.h>
-#include "FM_Tx.h"
-#include "FM_Rx.h"
-FM_Rx *receiver;
-FM_Tx *transmitter;
+#include "FM_rx.h"
+#include "FM_tx.h"
+FM_rx *receiver;
+FM_tx *transmitter;
 
 //enum STATES {
 //  START,
@@ -21,36 +21,44 @@ struct picture{
   uint8_t color[20];
 }pic[3];
 String state = "INIT";
-uint8_t buff[50];
-void addCheckSum(uint8_t* to, uint8_t* in, uint8_t s) {
+String buff;
+String addCheckSum(String in) {
+  String to;
+  int s = in.length();
+  char tem[s];
+  in.toCharArray(tem,s);
   int i;
   int sum = 0;
-  to[0] = 2;
+  to = 2 + in;
   for (i = 0; i < s; i ++) {
-    sum += in[i];
-    to[i + 1] = in[i];
+    sum += tem[i];
     if (sum >= 256) {
       sum = sum - 255;
     }
   }
-  int comply = 16 * 16 - sum - 1;
-  to[s+1] = comply;
-  /*for (i = 0; i <= s + 2; i++) {
-    Serial.print(to[i]);
-    Serial.print(',');
-  }
-  Serial.println();*/
+  char comply = 16 * 16 - sum - 1;
+  to += comply;
+  Serial.println(to);
+  return to;
 }
-void dataDepack(uint8_t* out,uint8_t* in,uint8_t frameSize){
+String dataDepack(String in){
+  String out;
+  uint8_t frameSize = in.length();
+  char tem[frameSize];
+  in.toCharArray(tem,in.length());
   for(int i=1;i<frameSize-1;i++){
-    out[i-1] = in[i];
+    out += tem[i];
   }
+  return out;
 }
-bool checkSum(uint8_t* in, uint8_t frameSize) {
+bool checkSum(String in) {
+  uint8_t frameSize = in.length();
+  char tem[frameSize];
+  in.toCharArray(tem,in.length());
   int i;
   int sum = 0;
   for (i = 1; i < frameSize; i ++) {
-    sum += in[i];
+    sum += tem[i];
     if (sum >= 256) {
       sum = sum - 255;
     }
@@ -62,25 +70,16 @@ bool checkSum(uint8_t* in, uint8_t frameSize) {
 }
 
 //new data control
-int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
-  uint8_t out[size_data + 3];
-  memset(out, 0, size_data + 3);
-  addCheckSum(out, data, size_data);
-  transmitter->sentFrame((char *)out);
-  int ch = -1;
-  int i;
-  uint8_t tem[50];
+int8_t sendAndWaitAck(String data, unsigned long t_out) {
+  String out = addCheckSum(data);  
+  transmitter->fskTransmit(out);
   unsigned long t = millis();
+  String ch;
   while (1) {
-    ch = receiver->Receive();
-    tem[0] = ch;
-    if (ch == 2) {
-      for (i = 1;i<3; i++) {
-        ch = receiver->Receive();
-        tem[i] = ch;
-      }
-      if (checkSum(buff, 3)) {
-        if (tem[1] == 'a') {
+    ch = receiver->receiveFrame();
+    if (ch[0] == 2) {
+      if (checkSum(ch)) {
+        if (ch[1] == 'a') {
           return 1;
         }
         //else data error
@@ -88,30 +87,22 @@ int8_t sendAndWaitAck(uint8_t* data, uint8_t size_data, unsigned long t_out) {
     }
     if (millis()-t > t_out){
       t = millis();
-      transmitter->sentFrame((char *)out);//resummit time out
+      transmitter->fskTransmit(out);//resummit time out
     }
   }
 }
 
-int8_t receiveAndSendAck(uint8_t* data,uint8_t size_data) {
+String receiveAndSendAck() {
   int ch = -1;
-  uint8_t tem[50];
   while (1) {
-    ch = receiver->Receive();
-    tem[0] = ch;
-    if (ch == 2) {
-      for (int i = 1;i<size_data+2; i++) {
-        ch = receiver->Receive();
-        tem[i] = ch;
-      }
-      if (checkSum(tem, size_data + 2)) {
-        dataDepack(data,tem,size_data + 2);
-        uint8_t out[3];
-        memset(out, 0, 3);
-        uint8_t ack[1] = {'a'};
-        addCheckSum(out, ack, 3);
-        transmitter->sentFrame((char *)out);
-        return 1;
+    ch = receiver->receiveFrame();
+    if (ch[0] == 2) {
+      if (checkSum(ch)) {
+        String out;
+        String ack = {'a'};
+        addCheckSum(out, ack);
+        transmitter->fskTransmit(out);
+        return dataDepack(ch);
       }
     }
   }
@@ -154,8 +145,8 @@ int8_t receiveAndSendAck(uint8_t* data,uint8_t size_data) {
 void setup() {
   Serial.begin(115200);
   Serial.flush();
-  receiver = new FM_Rx(); //Frequency goes here
-  transmitter = new FM_Tx();
+//  receiver = new FM_Rx(); //Frequency goes here
+//  transmitter = new FM_Tx();
   Serial.println("\n======= PROGRAM STARTING =======");
   Serial.println(". ");
   delay(500);
@@ -324,21 +315,19 @@ void loop() {
   //New Code
   if (state == "INIT") {
     //CS
-    receiveAndSendAck(buff,3);
+    //get pic info
+    addCheckSum("ads");
+    /*receiveAndSendAck(buff,3);
     for(int i=0;i<3;i++){
       pic[i].key = buff[i];
       decToBinary(pic[i].binary,buff[i]);
-    }
-    
-    
-
+    }*/
     //NS
     state = "WAIT";
   }
 
   if (state == "WAIT") {
     //CS
-    Serial.println("Waiting for respond");
-    receiver -> Receive();
+    
   }
 }
