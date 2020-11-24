@@ -1,6 +1,5 @@
 #include <Arduino.h>
-#include <Wire.h>
-#include <TEA5767Radio.h>
+#include "FastCRC.h"
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -9,28 +8,21 @@
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
-//edit this number
-#define r_slope 300
+#include <Wire.h>
 
-class FM_rx
+#include <TEA5767Radio.h>
+
+class FM_Rx
 {
-public:
-    int receiveFrame(int timeout);
-    FM_rx(float freq);
+  public:
+    FM_Rx(float freq);
+    int receiveFM(unsigned long timeout = 2000);
+    int receiveFrame(uint8_t *buffer, uint8_t startByte, uint8_t maxlen, unsigned long timeout = 2000);
+    int receiveAck(unsigned long timeout = 2000);
 
-private:
-    int prev = 0;
-    int count = 0;
-
-    uint16_t baud_check = 0;
-    uint16_t data = 0;
-    uint16_t bit_check = -1;
-
-    bool check_amp = false;
-    bool check_baud = false;
-
-    uint32_t baud_begin = 0;
-
-    int baudTime = 10000;
+  private:
     TEA5767Radio radio = TEA5767Radio();
+    FastCRC8 CRC8;
+
+    int8_t zone(uint16_t);
 };

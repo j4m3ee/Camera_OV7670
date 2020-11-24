@@ -1,56 +1,71 @@
-#include "FM_tx.h"
+#include "FM_Tx.h"
 
-FM_tx::FM_tx()
+FM_Tx::FM_Tx()
 {
-  dac.begin(0x62);
-  uint16_t S_DAC[num_S_Dac] = {0, 1000, 2000, 1000};
-  uint16_t cycle[num_cycle] = {1, 6, 11, 16};
-  for (int i = 0; i < num_Freq; i++)
+  Wire.begin();
+  Wire.setClock(800000UL);
+  for (int i = 0; i < NUM_FREQ; i++)
   {
-    freq[i] = 100 + (i * f_diff);
+    freq[i] = (i + 2) * FREQ_DIFF;
+    freqDelay[i] = ((1000000 / freq[i]) / NUM_SAMPLE) - 75;
   }
-  for (int i = 0; i < num_Delay; i++)
+
+  for (int i = 0; i < NUM_SAMPLE; i++)
   {
-    Delay[i] = (1000000 / freq[i] - 1000000 / defaultFreq) / 4;
+    S[i] = sin(DEG_TO_RAD * 360.0 / NUM_SAMPLE * i);
+    S_DAC[i] = S[i] * 2047.5 + 2047.5;
   }
+
+  setVoltage(2047);
 }
 
-void FM_tx::sentFrame(char data[])
+void FM_Tx::setVoltage(uint16_t vol)
 {
-  uint16_t len = strlen(data);
-  for (uint16_t i = 0; i < len; i++)
-  {
-    transmit(data[i]);
+  Wire.beginTransmission(0x62);
+  Wire.write((vol >> 8) & 0b00001111);
+  Wire.write(vol & 0b11111111);
+  Wire.endTransmission();
+}
+
+void FM_Tx::sendFrame(char in[], int l) {
+  sendFM(in, l + 3);
+}
+
+void FM_Tx::sendFM(char in[], int l) {
+  if (l == 0) {
+    l = strlen(in);
   }
-}
-
-char FM_tx::packFrame(char data[])
-{
-  uint16_t len = strlen(data);
-  //Flag : ~ [1 bytes]
-  //Frame seq : 0/1 [1 bit]
-  return 'a';
-}
-
-void FM_tx::transmit(char data)
-{
-  int tmp;
-  for (int i = 7; i > 0; i -= 2)
-  {
-    tmp = data & 3;
-    dacSent(cycle[tmp], Delay[tmp]);
-    data >>= 2;
+  for (int i = 0; i < l; i++) {
+    transmit(in[i]);
   }
+  setVoltage(2047);
+  delay(200);
 }
 
-void FM_tx::dacSent(uint16_t cyc, int dur)
+void FM_Tx::sendFM(char in)
 {
-  for (uint16_t c = 0; c < cyc; c++)
+  transmit(in);
+  setVoltage(2047);
+  delay(200);
+}
+
+void FM_Tx::transmit(char in)
+{
+  int input[4];
+  input[0] = (in >> 0) & B0011;
+  input[1] = (in >> 2) & B0011;
+  input[2] = (in >> 4) & B0011;
+  input[3] = (in >> 6) & B0011;
+
+  for (int k = 3; k >= 0; k--)
   {
-    for (uint16_t i = 0; i < 4; i++)
+    for (int cycle = freq[input[k]] / FREQ_DIFF; cycle > 0; cycle--)
     {
-      dac.setVoltage(S_DAC[i], false);
-      delayMicroseconds(dur);
+      for (int sample = 0; sample < NUM_SAMPLE; sample++)
+      {
+        setVoltage(S_DAC[sample]);
+        delayMicroseconds(freqDelay[input[k]]);
+      }
     }
   }
 }

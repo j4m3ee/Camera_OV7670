@@ -1,29 +1,25 @@
 #include <Arduino.h>
+#include <Wire.h>
 
-#include<Wire.h>
-#include<Adafruit_MCP4725.h>
-#include<Adafruit_ADS1015.h>
+#define NUM_SAMPLE 8
+#define NUM_FREQ 4
+#define FREQ_DIFF 250
 
-#define defaultFreq 1700
-#define num_Delay 4
-#define num_S_Dac 4
-#define num_Freq 4
-#define num_cycle 4
-#define f_diff 500
-
-class FM_tx
+class FM_Tx
 {
-    public:
-        FM_tx();
-        void sentFrame(char data[]);
-    private:
-        Adafruit_MCP4725 dac;
-        int Delay[num_Delay];
-        uint16_t freq[num_Freq];
-        uint16_t cycle[num_cycle];
-        uint16_t S_DAC[num_S_Dac];
+  public:
+    FM_Tx();
+    void sendFM(char data);
+    void sendFM(char in[], int l = 0);
+    void sendFrame(char in[], int l);
 
-        void transmit(char data);
-        void dacSent(uint16_t cyc,int time);
-        char packFrame(char data[]);
+  private:
+    int delay0;
+    float S[NUM_SAMPLE];
+    uint16_t S_DAC[NUM_SAMPLE];
+    uint16_t freq[NUM_FREQ];
+    uint16_t freqDelay[NUM_FREQ];
+
+    void setVoltage(uint16_t vol);
+    void transmit(char in);
 };
