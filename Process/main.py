@@ -70,7 +70,7 @@ if __name__ == "__main__":
         elif order == 'l':
             print('PC2 : timeout.')
         elif order == 'S':
-            print('PC2 : waitting order.')
+            print('PC2 : waitting order...')
         elif order == 'z':
             print('PC2 : sented.')
         else:

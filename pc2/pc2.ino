@@ -15,6 +15,7 @@ uint8_t int8array[3][21];
 String tmpData;
 uint8_t data_index = 0;
 uint8_t idx = 0;
+uint8_t maxResent = 5, nowMaxResent = 0;
 char tmpOpr[1];
 
 char state[3][10] = {"INIT", "WAIT", "SENDING"};
@@ -42,6 +43,7 @@ void loop()
 
     for (uint8_t i = 0; i < 3; i++) {
       bin[i] = director -> Capture(angle[i]);
+
     }
     for (uint8_t i = 0; i < 3; i++) {
       String tem = "";
@@ -143,25 +145,35 @@ void loop()
 }
 
 void connection() {
+  uint8_t tem[30];
+  memset(tem,0,30);
   for (int i = 0; i < 3; i++) {
-    uint8_t tem[i] = {data[i][0]};
+    tem[i] = data[i][0];
     //Serial.write(int(tem[1]));
-    transmitter -> Transmit(tem, 1);
+    //transmitter -> Transmit(tem, 1);
   }
-  uint8_t tem[1] = {145};
+  tem[3] = 145;
   //Serial.write(tem[1]);
-  transmitter -> Transmit(tem, 1);
+  transmitter -> Transmit(tem, 4);
   Serial.write('w');
   long t = millis();
   while (waitAck()) {
-    if (millis() - t > 5000) {
+    /*if (millis() - t > 5000) {
+      if(nowMaxState == 5){
+        Serial.write('l');
+        nowState = "WAIT";
+        delay(500);
+        return;
+      }*/
+      nowMaxResent++;
       Serial.write('l');
-      nowState = "WAIT";
+      nowState = "INIT";
       delay(500);
       return;
-    }
+    //}
   }
   delay(500);
+  nowMaxResent = 0;
   Serial.write('A');
 }
 
@@ -169,20 +181,27 @@ void sentPackData(uint8_t* data) {
   uint8_t out[23];
   addCheckSum(out, data, 21);
   out[22] = 145;
-//  monitorData(data, 23);
+  //  monitorData(data, 23);
   transmitter -> Transmit(data, 23);
   Serial.write('w');
 
   long t = millis();
   while (waitAck()) {
-    if (millis() - t > 5000) {
+    //if (millis() - t > 5000) {
+      /*if(nowMaxState == 5){
+        Serial.write('l');
+        nowState = "WAIT";
+        delay(500);
+        return;
+      }*/
       Serial.write('l');
-      //tmpOpr[0] = '-';
+      nowMaxResent++;
       nowState = "WAIT";
       delay(500);
-      return;
-    }
+      //return;
+    //}
   }
+  nowMaxResent = 0;
   delay(500);
   Serial.write('A');
 }

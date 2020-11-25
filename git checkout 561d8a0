@@ -1,0 +1,61 @@
+[33m66d8b89[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m bytes sent
+[33m561d8a0[m backup
+[33m97def6f[m abc
+[33m669cb8f[m Merge branch 'main' of https://github.com/j4m3ee/Camera_OV7670 into main
+[33m68f298c[m update pc2 again
+[33m43c0118[m refactor to String v.2
+[33m576254a[m refactor to String
+[33mc483bd5[m Merge branch 'main' of https://github.com/j4m3ee/Camera_OV7670 into main
+[33m9629312[m Update pc2
+[33mb9e3948[m update init state
+[33maae6ebd[m update sendAndWait and add receiveAndSend
+[33m445dbd8[m update sendAndWait and checkSum
+[33m1c01334[m new send and wait ack
+[33ma0da29a[m Commit
+[33m2e513a9[m fskTransmit
+[33m0a33201[m Receiver Done
+[33md7a136b[m Receive Success
+[33m10c5582[m update data packing
+[33mdc61e58[m Merge branch 'main' of https://github.com/j4m3ee/Camera_OV7670 into main
+[33m62ed855[m edit letters case
+[33mf926bf2[m Edited Lettercase
+[33m39956c2[m add frame first byte
+[33m2034e59[m add frame first byte
+[33ma7a29de[m Merge branch 'main' of https://github.com/j4m3ee/Camera_OV7670 into main
+[33m5a8604d[m Update PC1
+[33maf9fab2[m Merge branch 'main' of https://github.com/j4m3ee/Camera_OV7670 into main
+[33m75da22a[m Update pc2
+[33m6526cd1[m Update PC1
+[33m1a41f35[m Delete FM_tx.h
+[33ma70efce[m Delete FM_tx.cpp
+[33mad2be74[m Delete FM_rx.h
+[33mff7a60f[m Delete FM_rx.cpp
+[33m8014687[m Delete FM_Tx.h
+[33m17001b2[m Delete FM_Tx.cpp
+[33m04fc3b6[m Delete FM_Rx.h
+[33ma1107dd[m Delete FM_Rx.cpp
+[33m35a14e0[m AAAA
+[33m7e7c4e6[m AAAA
+[33mf279ca7[m Delete FM_rx.cpp
+[33mcf10add[m Pi init
+[33mcc182b2[m Edited PC1
+[33m4ac82e8[m update send and receive
+[33m6b0c923[m update send and receive
+[33m8d35e17[m update
+[33m2b876be[m Update sending part
+[33m4e840cb[m Merge branch 'main' of https://github.com/j4m3ee/Camera_OV7670 into main
+[33m8a65447[m PC1 Add LIB
+[33m6b5a3f5[m Draft send and receive
+[33m34a26ad[m Add data pack and Error check
+[33m569724a[m PC1 Add States
+[33me6a7fcc[m camera and pc2 update
+[33m2d63077[m delete file
+[33mc13b39d[m[33m ([m[1;32mBxss[m[33m)[m Updata
+[33mc2cab05[m This is comment
+[33mce39f6c[m dsadasaaaaa
+[33mb8e4816[m update cam and pc2
+[33m34ddee6[m update arduino camera code.
+[33m83f5e04[m Add gitignore
+[33mf36c827[m Cam done.
+[33m62858c6[m folder commit
+[33m5346580[m first commit
