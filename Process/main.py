@@ -71,6 +71,8 @@ if __name__ == "__main__":
             print('PC2 : timeout.')
         elif order == 'S':
             print('PC2 : waitting order.')
+        elif order == 'z':
+            print('PC2 : sented.')
         else:
             print('PC2 :',order)
 

@@ -16,7 +16,7 @@ class FM_tx
 {
   public:
 
-    void Transmit(String data);
+    void Transmit(uint8_t[],uint8_t);
     void fskTransmit(String data);
     FM_tx();
     //        void sentFrame(String data);

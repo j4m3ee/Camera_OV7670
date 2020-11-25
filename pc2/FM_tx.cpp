@@ -264,12 +264,12 @@ void FM_tx::fskTransmit(String data) {
 }
 
 
-void FM_tx::Transmit(String data) {
+void FM_tx::Transmit(uint8_t* data,uint8_t s) {
   int counter = 0;
-  for (int i = 0; i < data.length(); i++)
+  for (int i = 0; i < s; i++)
   {
     inData[i] = data[i];
-
+    
     counter++;
   }
   //    Serial.println(inp);
@@ -291,26 +291,26 @@ void FM_tx::Transmit(String data) {
       if (tmp == 0)
       {
         //Serial.println("00");
-        cyc = 1;
-        useDelay = delay0;
+        cyc = 5;
+        useDelay = Delay[0];
       }
       else if (tmp == 1)
       {
         //Serial.println("01");
-        cyc = 6;
-        useDelay = delay1;
+        cyc = 8;
+        useDelay = Delay[1];
       }
       else if (tmp == 2)
       {
         //Serial.println("10");
         cyc = 11;
-        useDelay = delay2;
+        useDelay = Delay[2];
       }
       else
       {
         //Serial.println("11");
-        cyc = 16;
-        useDelay = delay3;
+        cyc = 14;
+        useDelay = Delay[3];
       }
 
       for (int sl = 0; sl < cyc; sl++)

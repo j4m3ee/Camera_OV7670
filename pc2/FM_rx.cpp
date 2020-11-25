@@ -83,7 +83,7 @@ String FM_rx::receiveFrame(int timeout)
     return aData;
 }
 
-String FM_rx::Receive(){
+void FM_rx::Receive(uint8_t* out){
   int tmp = analogRead(A3);
   
   if ( tmp > r_slope and prev < r_slope and !check_amp ) // check amplitude
@@ -97,6 +97,7 @@ String FM_rx::Receive(){
   }
 
   if(tmp < r_slope and check_baud) {
+    int i=0;
     if (micros() - baud_begin > 9900 ) // full baud
     {
       uint16_t last = (((count - 5) / 3) & 3) << (bit_check * 2);;  // shift data
@@ -105,7 +106,8 @@ String FM_rx::Receive(){
       if (baud_check == 4) // 8 bits
       {
         //Serial.print((char)data);
-        output_data += char(data);
+        out[i] = char(data);
+        i++;
         data = 0;
         baud_check = 0;
         bit_check = -1;
@@ -121,9 +123,13 @@ String FM_rx::Receive(){
     check_amp = false;
   }
   prev = tmp;
-  return output_data;
+
+  
 }
 
 void FM_rx::Clear(){
-  output_data = "";
+  for (int i=0;i<50;i++){
+    output_data[i] = "";
+  }
+  
 }
