@@ -12,15 +12,15 @@
 //edit this number
 #define r_slope 300
 
-class FM_rx
+class FM_Rx
 {
-public:
-    String receiveFrame(int timeout);
-    
-    FM_rx(float freq);
+  public:
+    FM_Rx();
+    String Receive();
+    void Clear();
 
-private:
-    uint16_t prev = 0;
+  private:
+    int prev = 0;
     int count = 0;
 
     uint16_t baud_check = 0;
@@ -32,7 +32,5 @@ private:
 
     uint32_t baud_begin = 0;
 
-    int baudTime = 10000;
-    TEA5767Radio radio = TEA5767Radio();
-    bool fmAvailable();
+    String output_data;
 };

@@ -17,12 +17,8 @@ class FM_tx
   public:
 
     void Transmit(String data);
-    void fskTransmit(String data);
+    void sendACK();
     FM_tx();
-    //        void sentFrame(String data);
-    //        void setVoltage(int vol);
-    //        void FullTransmit(String data);
-    //        void testDac();
   private:
     Adafruit_MCP4725 dac;
     char inData[30];
@@ -34,9 +30,4 @@ class FM_tx
             uint16_t freq[4];
             uint16_t cycle[4];
             uint16_t S_DAC_fsk[4] = {1000, 2000, 1000, 0};;
-    //
-    //        void transmit(char data);
-    //        void dacSent(uint16_t cyc,int dur);
-    //        char packFrame(String data);
-    //        void sentHead();
 };
