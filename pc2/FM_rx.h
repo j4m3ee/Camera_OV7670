@@ -18,14 +18,14 @@ public:
     String receiveFrame(int timeout);
     
     FM_rx(float freq);
-    void Receive(uint8_t*);
+    String Receive();
 
     void Clear();
 
 private:
     uint16_t prev = 0;
     int count = 0;
-    uint8_t output_data[50];
+    String output_data;
 
     uint16_t baud_check = 0;
     uint16_t data = 0;

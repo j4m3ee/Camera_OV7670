@@ -25,9 +25,10 @@ def capturePic(path):
     if Err: return 'Error image.'
     tmp = image.markPoint(img)
     pData,allData = image.process(img)
-    print(pData,allData)
+    print(pData)
+    printDetail(allData)
     cam.save(tmp, path + '.png')
-    text = str(int(pData,2))+','+ convertListToStr(allData)
+    text = str(pData) +','+ convertListToStr(allData)
     pc2.write((text).encode())
     #pc2.write(("123456789012345678901234").encode())
     return allData
@@ -36,13 +37,28 @@ def convertListToStr(ls):
     text = ','.join(str(i) for i in ls)
     return text
 
+def printDetail(ls):
+    
+    print(','.join(str(ls[i]) for i in range(0,4)),end='')
+    print("   Avg =",ls[4])
+
+    print(','.join(str(ls[i]) for i in range(5,9)),end='')
+    print("   Avg =",ls[9])
+
+    print(','.join(str(ls[i]) for i in range(10,14)),end='')
+    print("   Avg =",ls[14])
+
+    print(','.join(str(ls[i]) for i in range(15,19)),end='')
+    print("   Avg =",ls[19])
+
+    print()
+
 
 
 def sentData(data):
     pass
 
 opr = ['L','C','R']
-
 if __name__ == "__main__":
     
     for file in os.listdir(folder):
@@ -61,7 +77,14 @@ if __name__ == "__main__":
             time.sleep(0.1)
         order = pc2.read_until().decode('ascii')
         if(order in opr):
-            print('Capture : ' + order,end=' -> ')
+            tp = ""
+            if order == 'L':
+                tp = 'Left'
+            elif order == 'C':
+                tp = 'Centre'
+            elif order == 'R':
+                tp = 'Right'
+            print('Capture : ' + tp,end=' -> ')
             lsData = capturePic(folder + order)
         elif order == 'A':
             print('PC2 : ackReceive.')
@@ -73,6 +96,8 @@ if __name__ == "__main__":
             print('PC2 : waitting order...')
         elif order == 'z':
             print('PC2 : sented.')
+        elif order == 'p':
+            print('PC2 : sented again.')
         else:
             print('PC2 :',order)
 

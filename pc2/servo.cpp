@@ -26,7 +26,6 @@ String servo::Capture(char angle)
   moveServo(angle);
   Serial.write(angle);
   oup = receiveData();
-  
   delay(500);
   moveServo('C');
   return oup;
@@ -34,9 +33,9 @@ String servo::Capture(char angle)
 
 String servo::receiveData() {
   String tmp;
-  long t = millis();
   while (!Serial.available());
   tmp = Serial.readString();
+
   return tmp;
 }
 
